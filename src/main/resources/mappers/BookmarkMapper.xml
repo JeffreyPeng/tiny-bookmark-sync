@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="tbs.dao.BookmarkMapper">
+    <select id="getAll" resultType="tbs.domain.Bookmark">
+        select * from bookmark
+    </select>
+    <insert id="insertOne" useGeneratedKeys="true"
+            keyProperty="tid" parameterType="tbs.domain.Bookmark">
+        insert into bookmark (id,parentId,title,url,index,dateAdded)
+        values (#{id},#{parentId},#{title},#{url},#{index},#{dateAdded})
+    </insert>
+</mapper>
