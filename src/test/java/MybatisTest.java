@@ -19,8 +19,7 @@ public class MybatisTest {
         SqlSession session = sqlSessionFactory.openSession();
         try {
             BookmarkMapper mapper = session.getMapper(BookmarkMapper.class);
-            List<Bookmark> list = mapper.getAll();
-            list.size();
+            mapper.dynamicUpdate("DROP TABLE IF EXISTS `bookmark`;CREATE TABLE `bookmark` (  `tid` bigint NOT NULL AUTO_INCREMENT,  `id` varchar(10),  `parentId` varchar(10),  `title` varchar(200),  `url` varchar(500),  `index` int,  `dateAdded`  bigint,  PRIMARY KEY (`id`));");
             session.commit();
         } finally {
             session.close();

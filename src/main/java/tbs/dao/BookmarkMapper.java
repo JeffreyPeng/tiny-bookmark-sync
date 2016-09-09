@@ -13,4 +13,6 @@ public interface BookmarkMapper {
     public List<Bookmark> getAll();
 
     public int insertOne(Bookmark bookmark);
+
+    public int dynamicUpdate(String sql);
 }

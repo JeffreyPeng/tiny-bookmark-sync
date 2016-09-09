@@ -11,4 +11,7 @@
         insert into bookmark (id,parentId,title,url,index,dateAdded)
         values (#{id},#{parentId},#{title},#{url},#{index},#{dateAdded})
     </insert>
+    <update id="dynamicUpdate" parameterType="java.lang.String">
+        ${_parameter}
+    </update>
 </mapper>
