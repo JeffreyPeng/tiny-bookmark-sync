@@ -14,10 +14,20 @@ function my_clock(el) {
 var clock_div = document.getElementById('clock_div');
 my_clock(clock_div);
 
-chrome.bookmarks.getTree(function (bookmarkArray) {
-    var str = JSON.stringify(bookmarkArray);
-    $.post("http://localhost/demo", {json: str},
+
+function getAll() {
+    $.post("http://localhost/api/getAll", {},
         function (data) {
             console.log("Data Loaded: " + data);
-        });
-});
+
+        }, "json");
+}
+function putAll() {
+    chrome.bookmarks.getTree(function (bookmarkArray) {
+        var str = JSON.stringify(bookmarkArray);
+        $.post("http://localhost/api/putAll", {json: str},
+            function (data) {
+                console.log("Data Loaded: " + data);
+            });
+    });
+}
