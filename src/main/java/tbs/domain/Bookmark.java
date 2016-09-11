@@ -1,5 +1,7 @@
 package tbs.domain;
 
+import java.util.List;
+
 /**
  * Created by pen-tpc on 2016/9/3.
  */
@@ -11,6 +13,6 @@ public class Bookmark {
     public String url;
     public Integer index;
     public Long dateAdded;
-    public Bookmark[] children;
+    public List<Bookmark> children;
 
 }

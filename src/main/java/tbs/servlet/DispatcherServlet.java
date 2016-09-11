@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static tbs.servlet.StartupServlet.sqlSessionFactory;
 
@@ -70,7 +68,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void parseTree(Bookmark root, List<Bookmark> result) {
-        if (root.children != null && root.children.length != 0) {
+        if (root.children != null && root.children.size() != 0) {
             for (Bookmark node : root.children) {
                 parseTree(node, result);
             }
@@ -85,12 +83,33 @@ public class DispatcherServlet extends HttpServlet {
         try {
             BookmarkMapper mapper = session.getMapper(BookmarkMapper.class);
             List<Bookmark> list = mapper.getAll();
+            Bookmark bookmark = buildTree(list);
             Gson gson = new Gson();
-            result = gson.toJson(list);
+            result = gson.toJson(bookmark);
             logger.info("return json = " + result);
         } finally {
             session.close();
         }
         return result;
+    }
+
+    private Bookmark buildTree(List<Bookmark> list) {
+        Map<String, Bookmark> map = new HashMap<>();
+        for (Bookmark bookmark : list) {
+            map.put(bookmark.id, bookmark);
+        }
+        Bookmark root = null;
+        for (Bookmark bookmark : list) {
+            if (bookmark.parentId == null) {
+                root = bookmark;
+            } else {
+                Bookmark parent = map.get(bookmark.parentId);
+                if (parent.children == null) {
+                    parent.children = new LinkedList<>();
+                }
+                parent.children.add(bookmark);
+            }
+        }
+        return root;
     }
 }
