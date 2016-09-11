@@ -112,4 +112,43 @@ public class DispatcherServlet extends HttpServlet {
         }
         return root;
     }
+
+    /**
+     * 客户端将本地树发送服务器，进行合并（标记相对客户端新增的），之后存储该树并返回客户端
+     * @param root1
+     * @param root2
+     */
+    private void union(Bookmark root1, Bookmark root2) {
+        Map<String, Bookmark> map = new HashMap();
+        for (Bookmark child : root2.children) {
+            map.put(child.title + child.url, child);
+        }
+        for (Bookmark child : root1.children) {
+            Bookmark child2 = map.get(child.title + child.url);
+            if (null != child2) {
+                if (child2.children != null) {
+                    union(child, child2);
+                }
+            }
+            map.remove(child.title + child.url);
+        }
+        if (map.size() > 0) {
+            root1.children.addAll(map.values());
+        }
+        reOrder(root1);
+    }
+    private void reOrder(Bookmark root) {
+        Collections.sort(root.children, new Comparator<Bookmark>() {
+            @Override
+            public int compare(Bookmark o1, Bookmark o2) {
+                if (o1.index < o2.index)
+                    return -1;
+                else
+                    return 1;
+            }
+        });
+        for (int i = 0; i < root.children.size(); i++) {
+            root.children.get(i).index = i;
+        }
+    }
 }
