@@ -55,3 +55,52 @@ function createBookRecur(root, parentId) {
         });
     }
 }
+
+function syncAll() {
+    $.post("http://localhost/api/getAll", {},
+        function (data) {
+            console.log("Data Loaded: " + data);
+            chrome.bookmarks.getTree(function (bookmarkArray) {
+                union(bookmarkArray[0].children[0], data.children[0]);
+            });
+        }, "json");
+}
+function union(root1, root2) {
+    var map = new Array();
+    var index;
+    for (index in root2.children) {
+        var child = root2.children[index];
+        map[child.title + child.url] = child;
+    }
+    var index2;
+    for (index2 in root1.children) {
+        var child = root1.children[index2];
+        var child2 = map[child.title + child.url];
+        if (child2) {
+            if (child2.children) {
+                union(child, child2);
+            }
+        }
+        delete map[child.title + child.url];
+    }
+    var childAddIndex;
+    for (childAddIndex in map) {
+        createBookMark(map[childAddIndex], root1.id);
+    }
+}
+function createBookMark(child, parentId) {
+    chrome.bookmarks.create({
+        parentId: parentId,
+        index: child.index,
+        title: child.title,
+        url: child.url
+    }, function(bookmark){
+        child.id = bookmark.id
+        if (child.children) {
+            var index;
+            for (index in child.children) {
+                createBookMark(child.children[index], child.id);
+            }
+        }
+    });
+}
