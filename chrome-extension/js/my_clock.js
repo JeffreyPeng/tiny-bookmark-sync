@@ -17,10 +17,10 @@ my_clock(clock_div);
 
 function putAll() {
     chrome.bookmarks.getTree(function (bookmarkArray) {
-        var str = JSON.stringify(bookmarkArray);
+        var str = JSON.stringify(bookmarkArray[0]);
         $.post("http://localhost/api/putAll", {json: str},
             function (data) {
-                console.log("Data Loaded: " + data);
+                //console.log("putAll Data Loaded: " + data);
             });
     });
 }
@@ -29,7 +29,7 @@ function putAll() {
 function getAll() {
     $.post("http://localhost/api/getAll", {},
         function (data) {
-            console.log("Data Loaded: " + data);
+            console.log("getAll Data Loaded: " + data);
             createBookRecur(data, '1');
         }, "json");
 }
@@ -59,36 +59,37 @@ function createBookRecur(root, parentId) {
 function syncAll() {
     $.post("http://localhost/api/getAll", {},
         function (data) {
-            console.log("Data Loaded: " + data);
-            chrome.bookmarks.getTree(function (bookmarkArray) {
-                union(bookmarkArray[0].children[0], data.children[0]);
-            });
+            //console.log("getAll Data Loaded: " + data);
+            if (data && data.children[0]) {
+                chrome.bookmarks.getTree(function (bookmarkArray) {
+                    // 当前仅同步书签栏
+                    unionRecur(bookmarkArray[0].children[0], data.children[0]);
+                });
+            }
+            //setTimeout(putAll, 5000);
         }, "json");
 }
-function union(root1, root2) {
+function unionRecur(root1, root2) {
     var map = new Array();
-    var index;
-    for (index in root2.children) {
+    for (var index in root2.children) {
         var child = root2.children[index];
         map[child.title + child.url] = child;
     }
-    var index2;
-    for (index2 in root1.children) {
-        var child = root1.children[index2];
+    for (var index in root1.children) {
+        var child = root1.children[index];
         var child2 = map[child.title + child.url];
         if (child2) {
             if (child2.children) {
-                union(child, child2);
+                unionRecur(child, child2);
             }
         }
         delete map[child.title + child.url];
     }
-    var childAddIndex;
-    for (childAddIndex in map) {
-        createBookMark(map[childAddIndex], root1.id);
+    for (var index in map) {
+        createRecur(map[index], root1.id);
     }
 }
-function createBookMark(child, parentId) {
+function createRecur(child, parentId) {
     chrome.bookmarks.create({
         parentId: parentId,
         index: child.index,
@@ -97,10 +98,35 @@ function createBookMark(child, parentId) {
     }, function(bookmark){
         child.id = bookmark.id
         if (child.children) {
-            var index;
-            for (index in child.children) {
-                createBookMark(child.children[index], child.id);
+            for (var index in child.children) {
+                createRecur(child.children[index], child.id);
             }
         }
     });
 }
+// TODO
+chrome.bookmarks.onCreated.addListener(function(bookmark){
+    console.log(bookmark);
+});
+chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
+    console.log('Bookmark '+id+' has been removed:');
+    console.log(removeInfo);
+});
+chrome.bookmarks.onChanged.addListener(function(id, changeInfo){
+    console.log('Bookmark '+id+' has been changed:');
+    console.log(changeInfo);
+});
+chrome.bookmarks.onMoved.addListener(function(id, moveInfo){
+    console.log('Bookmark '+id+' has been moved:');
+    console.log(moveInfo);
+});
+chrome.bookmarks.onChildrenReordered.addListener(function(id, reorderInfo){
+    console.log('Bookmark '+id+' has a new children order:');
+    console.log(reorderInfo);
+});
+onImportBegan(function(){
+    console.log('Bookmark import began.');
+});
+onImportEnded(function(){
+    console.log('Bookmark import ended.');
+});
