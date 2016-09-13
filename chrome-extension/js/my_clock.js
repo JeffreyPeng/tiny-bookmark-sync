@@ -111,6 +111,9 @@ chrome.bookmarks.onCreated.addListener(function(bookmark){
 chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
     console.log('Bookmark '+id+' has been removed:');
     console.log(removeInfo);
+    chrome.bookmarks.get([removeInfo.parentId], function(bookmarkArray){
+        deleteRecur(bookmarkArray[0].parentId, bookmarkArray[0], removeInfo.index);
+    });
 });
 chrome.bookmarks.onChanged.addListener(function(id, changeInfo){
     console.log('Bookmark '+id+' has been changed:');
@@ -124,9 +127,24 @@ chrome.bookmarks.onChildrenReordered.addListener(function(id, reorderInfo){
     console.log('Bookmark '+id+' has a new children order:');
     console.log(reorderInfo);
 });
-onImportBegan(function(){
+chrome.bookmarks.onImportBegan.addListener(function(){
     console.log('Bookmark import began.');
 });
-onImportEnded(function(){
+chrome.bookmarks.onImportEnded.addListener(function(){
     console.log('Bookmark import ended.');
 });
+
+function deleteRecur(parentId, child, removeIndex) {
+    chrome.bookmarks.get([parentId], function(bookmarkArray){
+        var parent = bookmarkArray[0];
+        parent.children = new Array();
+        parent.children.push(child);
+        if (parent.parentId) {
+            deleteRecur(parent.parentId, parent, removeIndex);
+        } else {
+            // TODO send parent to server
+            console.log(parent);
+            console.log(removeIndex);
+        }
+    });
+}
