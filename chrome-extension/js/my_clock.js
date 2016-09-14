@@ -104,8 +104,8 @@ function createRecur(child, parentId) {
         }
     });
 }
-// TODO
 chrome.bookmarks.onCreated.addListener(function(bookmark){
+    // TODO
     console.log(bookmark);
 });
 chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
@@ -116,21 +116,22 @@ chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
     });
 });
 chrome.bookmarks.onChanged.addListener(function(id, changeInfo){
+    // TODO
     console.log('Bookmark '+id+' has been changed:');
     console.log(changeInfo);
 });
 chrome.bookmarks.onMoved.addListener(function(id, moveInfo){
+    // TODO
     console.log('Bookmark '+id+' has been moved:');
     console.log(moveInfo);
 });
 chrome.bookmarks.onChildrenReordered.addListener(function(id, reorderInfo){
+    // TODO
     console.log('Bookmark '+id+' has a new children order:');
     console.log(reorderInfo);
 });
-chrome.bookmarks.onImportBegan.addListener(function(){
-    console.log('Bookmark import began.');
-});
 chrome.bookmarks.onImportEnded.addListener(function(){
+    // TODO
     console.log('Bookmark import ended.');
 });
 
@@ -142,9 +143,13 @@ function deleteRecur(parentId, child, removeIndex) {
         if (parent.parentId) {
             deleteRecur(parent.parentId, parent, removeIndex);
         } else {
-            // TODO send parent to server
-            console.log(parent);
-            console.log(removeIndex);
+            var str = JSON.stringify(parent);
+            //console.log(parent);
+            //console.log(removeIndex);
+            $.post("http://localhost/api/delete", {json: str},
+                function (data) {
+                    //console.log("putAll Data Loaded: " + data);
+                });
         }
     });
 }

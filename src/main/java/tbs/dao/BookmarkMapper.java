@@ -14,5 +14,9 @@ public interface BookmarkMapper {
 
     public int insertOne(Bookmark bookmark);
 
+    public int deleteById(String id);
+
+    public int deleteByParentId(String parentId);
+
     public int dynamicUpdate(String sql);
 }

@@ -37,6 +37,9 @@ public class DispatcherServlet extends HttpServlet {
             case "/getAll":
                 result = getAll(parameterMap);
                 break;
+            case "/delete":
+                result = delete(parameterMap);
+                break;
         }
         resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
@@ -45,7 +48,7 @@ public class DispatcherServlet extends HttpServlet {
 
     private String putAll(Map<String, String[]> parameterMap) {
         String json = parameterMap.get("json")[0];
-        logger.info("json:" + json);
+        logger.info("putAll json:" + json);
         Gson gson = new Gson();
         Bookmark bookmark = gson.fromJson(json, Bookmark.class);
         List<Bookmark> result = new LinkedList<>();
@@ -87,7 +90,7 @@ public class DispatcherServlet extends HttpServlet {
             Bookmark bookmark = buildTree(list);
             Gson gson = new Gson();
             result = gson.toJson(bookmark);
-            logger.info("return json = " + result);
+            logger.info("getAll json = " + result);
         } finally {
             session.close();
         }
@@ -112,5 +115,46 @@ public class DispatcherServlet extends HttpServlet {
             }
         }
         return root;
+    }
+
+    private String delete(Map<String, String[]> parameterMap) {
+        String json = parameterMap.get("json")[0];
+        logger.info("delete json:" + json);
+        Gson gson = new Gson();
+        Bookmark bookmark = gson.fromJson(json, Bookmark.class);
+        SqlSession session = sqlSessionFactory.openSession();
+        try {
+            BookmarkMapper mapper = session.getMapper(BookmarkMapper.class);
+            List<Bookmark> list = mapper.getAll();
+            Bookmark root = buildTree(list);
+            if (bookmark.title == root.title) {
+                Bookmark deleteNode = searchNode(root, bookmark);
+                if (null != deleteNode) {
+                    mapper.deleteById(deleteNode.id);
+                    session.commit();
+                    if (deleteNode.children != null) {
+                        mapper.deleteByParentId(deleteNode.id);
+                        session.commit();
+                    }
+                }
+            }
+        } finally {
+            session.close();
+        }
+        return "ok";
+    }
+
+    private Bookmark searchNode(Bookmark rootFromDb, Bookmark rootInJson) {
+        if (rootInJson.children == null) {
+            return rootFromDb;
+        } else {
+            for (Bookmark child : rootFromDb.children) {
+                Bookmark node = rootFromDb.children.get(0);
+                if ((child.title + child.url).equals(node.title + node.url)) {
+                    return searchNode(child, node);
+                }
+            }
+        }
+        return null;
     }
 }

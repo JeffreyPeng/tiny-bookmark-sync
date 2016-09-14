@@ -11,6 +11,12 @@
         insert into bookmark (id,parentId,title,url,index,dateAdded)
         values (#{id},#{parentId},#{title},#{url},#{index},#{dateAdded})
     </insert>
+    <update id="deleteById" parameterType="java.lang.String">
+        delete from bookmark where id = #{_parameter}
+    </update>
+    <update id="deleteByParentId" parameterType="java.lang.String">
+        delete from bookmark where parentId = #{_parameter}
+    </update>
     <update id="dynamicUpdate" parameterType="java.lang.String">
         ${_parameter}
     </update>
