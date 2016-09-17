@@ -88,9 +88,11 @@ public class DispatcherServlet extends HttpServlet {
             BookmarkMapper mapper = session.getMapper(BookmarkMapper.class);
             List<Bookmark> list = mapper.getAll();
             Bookmark bookmark = buildTree(list);
-            Gson gson = new Gson();
-            result = gson.toJson(bookmark);
-            logger.info("getAll json = " + result);
+            if (bookmark != null) {
+                Gson gson = new Gson();
+                result = gson.toJson(bookmark);
+                logger.info("getAll json = " + result);
+            }
         } finally {
             session.close();
         }
