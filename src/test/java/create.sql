@@ -7,5 +7,5 @@ CREATE TABLE `bookmark` (
   `url` varchar(500),
   `index` int,
   `dateAdded`  bigint,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`tid`)
 );

@@ -8,7 +8,7 @@
     </select>
     <insert id="insertOne" useGeneratedKeys="true"
             keyProperty="tid" parameterType="tbs.domain.Bookmark">
-        insert into bookmark (id,parentId,title,url,index,dateAdded)
+        insert into bookmark (id,parentId,title,url,`index`,dateAdded)
         values (#{id},#{parentId},#{title},#{url},#{index},#{dateAdded})
     </insert>
     <update id="deleteById" parameterType="java.lang.String">

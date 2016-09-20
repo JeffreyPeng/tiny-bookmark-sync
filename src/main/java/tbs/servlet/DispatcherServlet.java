@@ -82,7 +82,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private String getAll(Map<String, String[]> parameterMap) {
-        String result = "";
+        String result = "{}";
         SqlSession session = sqlSessionFactory.openSession();
         try {
             BookmarkMapper mapper = session.getMapper(BookmarkMapper.class);

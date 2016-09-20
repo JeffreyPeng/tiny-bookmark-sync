@@ -1,3 +1,4 @@
+var serviceHost = "http://localhost";
 
 var sync = false;
 
@@ -19,7 +20,7 @@ function putTaskCore() {
 function putAll() {
     chrome.bookmarks.getTree(function (bookmarkArray) {
         var str = JSON.stringify(bookmarkArray[0]);
-        $.post("http://localhost/api/putAll", {json: str},
+        $.post(serviceHost + "/api/putAll", {json: str},
             function (data) {
                 sync = true;
                 //console.log("putAll Data Loaded: " + data);
@@ -28,10 +29,10 @@ function putAll() {
 }
 
 function syncAll() {
-    $.post("http://localhost/api/getAll", {},
+    $.post(serviceHost + "/api/getAll", {},
         function (data) {
             //console.log("getAll Data Loaded: " + data);
-            if (data && data.children[0]) {
+            if (data && data.children && data.children[0]) {
                 chrome.bookmarks.getTree(function (bookmarkArray) {
                     // 当前仅同步书签栏
                     unionRecur(bookmarkArray[0].children[0], data.children[0]);
@@ -40,7 +41,9 @@ function syncAll() {
                     clearInterval(syncTaskId);
                 });
             } else {
-                putAll();
+                sync = true;
+                putTask();
+                clearInterval(syncTaskId);
             }
         }, "json");
 }
@@ -101,7 +104,7 @@ chrome.bookmarks.onImportEnded.addListener(function(){
 
 /*
 function getAll() {
-    $.post("http://localhost/api/getAll", {},
+    $.post(serviceHost + "/api/getAll", {},
         function (data) {
             console.log("getAll Data Loaded: " + data);
             createBookRecur(data, '1');
@@ -150,7 +153,7 @@ function deleteRecur(parentId, child, removeIndex) {
             var str = JSON.stringify(parent);
             //console.log(parent);
             //console.log(removeIndex);
-            $.post("http://localhost/api/delete", {json: str},
+            $.post(serviceHost + "/api/delete", {json: str},
                 function (data) {
                     //console.log("putAll Data Loaded: " + data);
                 });
