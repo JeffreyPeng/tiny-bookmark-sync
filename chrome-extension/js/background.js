@@ -1,32 +1,36 @@
 var serviceHost = "http://localhost";
 
-var sync = false;
-
-var syncTaskId = setInterval(syncAll, 5000);
-
-var putTaskId;
-function putTask() {
-    if (putTaskId) {
-        clearTimeout(putTaskId);
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+    if(message.indexOf('op') == 0){
+        if (message == 'op_sync') {
+            syncAll();
+            sendResponse('同步中...');
+        }
+        if (message == 'op_get') {
+            getAll();
+            sendResponse('下载中...');
+        }
+        if (message == 'op_put') {
+            putAll();
+            sendResponse('上传中...');
+        }
     }
-    putTaskId = setTimeout(putTaskCore, 5000);
-}
-function putTaskCore() {
-    if (sync) {
-        putAll();
-    }
-}
+});
+
+//---------------------------------------------------------------
 
 function putAll() {
     chrome.bookmarks.getTree(function (bookmarkArray) {
         var str = JSON.stringify(bookmarkArray[0]);
         $.post(serviceHost + "/api/putAll", {json: str},
             function (data) {
-                sync = true;
                 //console.log("putAll Data Loaded: " + data);
+                chrome.runtime.sendMessage('rs_上传成功！', function(response){});
             });
     });
 }
+
+//---------------------------------------------------------------
 
 function syncAll() {
     $.post(serviceHost + "/api/getAll", {},
@@ -36,14 +40,9 @@ function syncAll() {
                 chrome.bookmarks.getTree(function (bookmarkArray) {
                     // 当前仅同步书签栏
                     unionRecur(bookmarkArray[0].children[0], data.children[0]);
-                    sync = true;
-                    putTask();
-                    clearInterval(syncTaskId);
+                    chrome.runtime.sendMessage('rs_同步成功！', function(response){});
                 });
             } else {
-                sync = true;
-                putTask();
-                clearInterval(syncTaskId);
             }
         }, "json");
 }
@@ -83,31 +82,33 @@ function createRecur(child, parentId) {
     });
 }
 
-chrome.bookmarks.onCreated.addListener(function(bookmark){
-    putTask();
-});
-chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
-    putTask();
-});
-chrome.bookmarks.onChanged.addListener(function(id, changeInfo){
-    putTask();
-});
-chrome.bookmarks.onMoved.addListener(function(id, moveInfo){
-    putTask();
-});
-chrome.bookmarks.onChildrenReordered.addListener(function(id, reorderInfo){
-    putTask();
-});
-chrome.bookmarks.onImportEnded.addListener(function(){
-    putTask();
-});
+//---------------------------------------------------------------
 
-/*
 function getAll() {
+    chrome.bookmarks.getChildren('1', function(bookmarkArray){
+        if(bookmarkArray.length > 0) {
+            for(var index in bookmarkArray) {
+                if (bookmarkArray[index].url) {
+                    chrome.bookmarks.remove(bookmarkArray[index].id, function(){
+                        //console.log('Bookmark 16 has been removed.');
+                    });
+                } else {
+                    chrome.bookmarks.removeTree(bookmarkArray[index].id, function(){
+                        //console.log('Bookmark group 6 has been removed.');
+                    });
+                }
+            }
+        }
+    });
     $.post(serviceHost + "/api/getAll", {},
         function (data) {
-            console.log("getAll Data Loaded: " + data);
-            createBookRecur(data, '1');
+            //console.log("getAll Data Loaded: " + data);
+            if (data && data.children && data.children[0]) {
+                createBookRecur(data, '1');
+                chrome.runtime.sendMessage('rs_下载成功！', function(response){});
+            } else {
+
+            }
         }, "json");
 }
 function createBookRecur(root, parentId) {
@@ -132,32 +133,3 @@ function createBookRecur(root, parentId) {
         });
     }
 }
-
-chrome.bookmarks.onRemoved.addListener(function(id, removeInfo){
-    console.log('Bookmark '+id+' has been removed:');
-    console.log(removeInfo);
-    //chrome.bookmarks.get([removeInfo.parentId], function(bookmarkArray){
-        //deleteRecur(bookmarkArray[0].parentId, bookmarkArray[0], removeInfo.index);
-    //});
-});
-
-
-function deleteRecur(parentId, child, removeIndex) {
-    chrome.bookmarks.get([parentId], function(bookmarkArray){
-        var parent = bookmarkArray[0];
-        parent.children = new Array();
-        parent.children.push(child);
-        if (parent.parentId) {
-            deleteRecur(parent.parentId, parent, removeIndex);
-        } else {
-            var str = JSON.stringify(parent);
-            //console.log(parent);
-            //console.log(removeIndex);
-            $.post(serviceHost + "/api/delete", {json: str},
-                function (data) {
-                    //console.log("putAll Data Loaded: " + data);
-                });
-        }
-    });
-}
-*/

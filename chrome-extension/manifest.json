@@ -1,8 +1,21 @@
 {
   "manifest_version": 2,
   "name": "tiny-bookmark-sync",
-  "version": "0.1",
+  "version": "0.2",
   "description": "简易书签同步，适用于无法连接谷歌服务器的环境",
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "19": "images/icon19.png",
+      "38": "images/icon38.png"
+    },
+    "default_title": "书签同步",
+    "default_popup": "popup.html"
+  },
   "background": {
     "page": "background.html"
   },

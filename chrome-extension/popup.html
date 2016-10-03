@@ -1,0 +1,80 @@
+<html lang="zh-CN" dir="ltr">
+<head>
+    <style>
+        body {
+            min-width: 250px;
+            margin: 0px;
+            font-family: Segoe UI, Arial, sans-serif;
+            font-size: 13px;
+            color: #545454;
+            background-color: #f8f6f2;
+            background-image: url(images/background.png);
+        }
+        header {
+            height: 45px;
+            margin-bottom: 0px;
+            border-bottom: 1px solid #e1ddd8;
+            background-image: url(images/background-main.png);
+        }
+        #wrapper {
+            padding: 0px 20px;
+        }
+        footer {
+            height: 16px;
+            text-align: center;
+            padding: 15px;
+            border-top: 1px solid #e1ddd8;
+            background-image: url(images/background-main.png);
+        }
+        ul {
+            margin: 0px;
+            padding: 0px;
+        }
+        li {
+            cursor: pointer;
+            list-style-type: none;
+            white-space: nowrap;
+            border-top: 1px dashed #a5a4a1;
+        }
+        li ul {
+            margin-left: 35px;
+        }
+        li li {
+            cursor: default;
+            padding: 10px 15px;
+        }
+        .menu-item {
+            padding: 10px 0px 10px 0px;
+            text-align: center;
+        }
+        .menu-item:hover {
+            background-color: #ece7df;
+        }
+    </style>
+</head>
+<!-- Set tabindex to work around Chromium issue 304532 -->
+<!-- Set overflow to hidden in order to prevent Safari showing scrollbars while loading -->
+<body tabindex="1" style="overflow: hidden;">
+<header>
+</header>
+<div style="height: 40px;text-align: center;"><h3>书签操作</h3></div>
+<div id="wrapper">
+    <ul id="menu">
+        <li class="menu-item">
+            <span id="syncBtn">同步书签（增量合并）</span>
+        </li>
+        <li class="menu-item">
+            <span id="downloadBtn">下载书签（覆盖本地）</span>
+        </li>
+        <li class="menu-item">
+            <span id="uploadBtn">上传书签（覆盖远程）</span>
+        </li>
+    </ul>
+</div>
+<footer>
+    <span id="resultMsg"></span>
+</footer>
+<script src="https://lib.sinaapp.com/js/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+<script src="js/popup.js"></script>
+</body>
+</html>
